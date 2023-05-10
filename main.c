@@ -34,7 +34,7 @@ PCB *proximo_processo(Fila *filas);
 
 int main() {
     Fila *filas[NUM_FILAS];
-    int t, i;
+    int t[NUM_FILAS], i, auxiliar;
 
     //começo alocar dinamicamente as filas passando o quantum e o id, o quantum minimo sera de 2
     for(i = 0; i < NUM_FILAS; i++){
@@ -47,17 +47,27 @@ int main() {
     //para gerar numeros aleatorios, os numeros gerados serão o tempo, onde eu irei implementar no próximo for
     srand(time(NULL));
 
-    //defino o id, a prioridade, e o tempo eu gero pseudo-aleatoriamente e os printo para comparar
+    //defino o id, a prioridade, e o tempo eu gero pseudo-aleatoriamente em um vetor, os ordeno de ordem crescente e os
+    // passo para meu PCB que é colocado em uma fila e os printo
     for(i=0; i<NUM_FILAS; i++){
-        t = 1 + rand() % 20;
-        //printf("%d\n", t);
-        PCB p1 = {1, 2, t};
-        t = 1 + rand() % 20;
-        PCB p2 = {2, 1, t};
-        t = 1 + rand() % 20;
-        PCB p3 = {3, 0, t};
-        t = 1 + rand() % 20;
-        PCB p4 = {4, 3, t};
+
+        for (int a = 0; a < 4; a++) {
+            auxiliar = 1 + rand() % 20; // Gera um número aleatório entre 1 e 20
+
+            // Insere o número gerado em ordem crescente no vetor
+            for (int b = a; b >= 0; b--) {
+                if (b == 0 || t[b-1] <= auxiliar) {
+                    t[b] = auxiliar;
+                    break;
+                } else {
+                    t[b] = t[b-1];
+                }
+            }
+        }
+        PCB p1 = {1, 1, t[0]};
+        PCB p2 = {2, 2, t[1]};
+        PCB p3 = {3, 3, t[2]};
+        PCB p4 = {4, 4, t[3]};
         inicia_filas(filas[i], &p1);
         inicia_filas(filas[i], &p2);
         inicia_filas(filas[i], &p3);
@@ -158,7 +168,7 @@ void imprime_filas(Fila **filas) {
 }
 
 
-
+//manipula os processos enquanto escalona
 void adiciona_processo(Fila *q, PCB *p){
     No *auxiliar = malloc(sizeof(No));
     auxiliar->processo = malloc(sizeof(PCB));
